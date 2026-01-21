@@ -17,6 +17,8 @@ CREATE TABLE EVENT (
     venue VARCHAR(50)
 );
 
+
+
 CREATE TABLE REGISTRATION (
     reg_id INT PRIMARY KEY,
     student_id INT,
@@ -163,3 +165,40 @@ END;
 DELIMITER ;
 
 CALL InsertStudentSafe();
+ALTER TABLE STUDENT
+ADD email VARCHAR(50);
+ 
+ALTER TABLE STUDENT
+ADD phone VARCHAR(15);
+
+ALTER TABLE EVENT
+ADD organizer VARCHAR(50);
+
+ALTER TABLE STUDENT
+ADD address VARCHAR(100),
+ADD dob DATE;
+
+ALTER TABLE STUDENT
+MODIFY name VARCHAR(100);
+
+ALTER TABLE EVENT
+MODIFY venue VARCHAR(100);
+
+ALTER TABLE STUDENT
+RENAME COLUMN dept TO department;
+
+ALTER TABLE STUDENT
+DROP phone;
+
+ALTER TABLE STUDENT
+ADD CONSTRAINT uq_student_email UNIQUE (email);
+
+ALTER TABLE STUDENT
+DROP INDEX uq_student_email;
+
+ALTER TABLE EVENT
+ALTER venue SET DEFAULT 'MG Auditorium';
+
+GRANT SELECT, INSERT, UPDATE ON student_event_db.* TO 'username'@'localhost';
+REVOKE UPDATE ON student_event_db.* FROM 'username'@'localhost';
+
