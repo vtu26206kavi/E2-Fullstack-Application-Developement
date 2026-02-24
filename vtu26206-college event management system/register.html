@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Event Registration | Pongal Celebration</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #e3f6fb;
+        color: #333;
+    }
+
+    h1, h2 {
+        color: #3a5f7d;
+    }
+
+    .container {
+        width: 80%;
+        margin: 30px auto;
+        background-color: #ffffff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    .section {
+        margin-bottom: 25px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+    }
+
+    input, select, textarea {
+        width: 95%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    textarea {
+        resize: none;
+        height: 80px;
+    }
+
+    .info-box {
+        background-color: #f2f8fb;
+        padding: 15px;
+        border-left: 4px solid #3a5f7d;
+        font-size: 14px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #3a5f7d;
+        color: white;
+        border: none;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover {
+        background-color: #2c4b63;
+    }
+
+    footer {
+        text-align: center;
+        padding: 12px;
+        background-color: #3a5f7d;
+        color: white;
+        margin-top: 30px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1 style="text-align:center;">Event Registration</h1>
+
+    <!-- Event Info -->
+    <div class="section">
+        <h2>Event Details</h2>
+        <p><b>Event Name:</b> Pongal Celebration</p>
+        <p><b>Date:</b> 14 January 2026</p>
+        <p><b>Venue:</b> University Ground</p>
+        <p><b>Registration Fee:</b> Free</p>
+    </div>
+
+    <!-- Instructions -->
+    <div class="section info-box">
+        <h3>Instructions</h3>
+        <ul>
+            <li>Participants must carry their college ID card.</li>
+            <li>Reporting time is 30 minutes before the event.</li>
+            <li>Late entries are not allowed.</li>
+        </ul>
+    </div>
+
+    <!-- Requirements & Constraints -->
+    <div class="section info-box">
+        <h3>Requirements & Constraints</h3>
+        <ul>
+            <li>Open to all Vel Tech University students.</li>
+            <li>Maximum 5 members per team.</li>
+            <li>Team leader must register on behalf of the team.</li>
+        </ul>
+    </div>
+
+    <!-- Student Info -->
+    <div class="section">
+        <h2>Student Information</h2>
+
+        <label>Student Name</label>
+        <input type="text" placeholder="Enter your full name">
+
+        <label>Register Number</label>
+        <input type="text" placeholder="Enter register number">
+
+        <label>Department</label>
+        <input type="text" placeholder="Enter department">
+
+        <label>Year</label>
+        <select>
+            <option>Select Year</option>
+            <option>1st Year</option>
+            <option>2nd Year</option>
+            <option>3rd Year</option>
+            <option>4th Year</option>
+        </select>
+
+        <label>Email</label>
+        <input type="email" placeholder="Enter email">
+
+        <label>Mobile Number</label>
+        <input type="text" placeholder="Enter mobile number">
+    </div>
+
+    <!-- Team Info -->
+    <div class="section">
+        <h2>Team Information (If Applicable)</h2>
+
+        <label>Team Name</label>
+        <input type="text" placeholder="Enter team name">
+
+        <label>Number of Team Members</label>
+        <select>
+            <option>Select</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+
+        <label>Team Members Details</label>
+        <textarea placeholder="Enter team members names & register numbers"></textarea>
+    </div>
+
+    <!-- Payment -->
+    <div class="section">
+        <h2>Payment Details</h2>
+
+        <label>Payment Mode</label>
+        <select>
+            <option>Free Event</option>
+            <option>UPI</option>
+            <option>Cash</option>
+        </select>
+
+        <label>Transaction ID (if applicable)</label>
+        <input type="text" placeholder="Enter transaction ID">
+    </div>
+
+    <!-- Submit -->
+    <button class="submit-btn">Submit Registration</button>
+
+</div>
+
+<footer>
+    © 2026 Vel Tech University | Event Management System
+</footer>
+
+</body>
+</html>
