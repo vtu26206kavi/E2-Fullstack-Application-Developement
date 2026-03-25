@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment — Skill Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #0d0d0f;
+            --paper: #f5f3ee;
+            --accent: #ff4d2e;
+            --accent2: #ffb800;
+            --muted: #8a8680;
+            --card: #ffffff;
+            --border: #e2dfd8;
+            --green: #22c55e;
+            --green-bg: rgba(34,197,94,.1);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* ── NAVBAR ── */
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(245,243,238,0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 48px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em;
+            color: var(--ink); text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .logo-dot {
+            width: 8px; height: 8px; background: var(--accent);
+            border-radius: 50%; animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { transform:scale(1); opacity:1; }
+            50%      { transform:scale(1.4); opacity:.7; }
+        }
+        nav { display: flex; align-items: center; gap: 6px; }
+        nav a {
+            font-size: .82rem; font-weight: 500; color: var(--muted);
+            text-decoration: none; padding: 8px 14px;
+            border-radius: 100px; transition: color .2s, background .2s;
+        }
+        nav a:hover { color: var(--ink); background: rgba(13,13,15,.06); }
+        .nav-back {
+            border: 1.5px solid var(--border) !important;
+            color: var(--ink) !important;
+        }
+        .nav-back:hover { border-color: var(--ink) !important; }
+        .nav-logout {
+            background: var(--ink) !important; color: #fff !important;
+            font-family: 'Syne', sans-serif; font-weight: 600 !important;
+        }
+        .nav-logout:hover { background: var(--accent) !important; }
+
+        /* ── LAYOUT ── */
+        .page-wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 48px 80px;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 28px;
+            align-items: start;
+            animation: riseUp .65s cubic-bezier(.16,1,.3,1) both;
+        }
+        @keyframes riseUp {
+            from { opacity:0; transform:translateY(28px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* ── LEFT COLUMN ── */
+        .breadcrumb {
+            display: flex; align-items: center; gap: 6px;
+            font-size: .75rem; color: var(--muted); margin-bottom: 24px;
+        }
+        .breadcrumb a { color: var(--muted); text-decoration: none; transition: color .2s; }
+        .breadcrumb a:hover { color: var(--ink); }
+        .breadcrumb span { opacity: .4; }
+
+        /* Steps */
+        .steps {
+            display: flex; align-items: center; gap: 0;
+            margin-bottom: 32px;
+        }
+        .step {
+            display: flex; align-items: center; gap: 8px;
+            font-size: .78rem; font-weight: 500;
+        }
+        .step-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: .75rem;
+            transition: all .3s;
+        }
+        .step.done .step-num   { background: var(--green); color: #fff; }
+        .step.active .step-num { background: var(--ink); color: #fff; }
+        .step.idle .step-num   { background: var(--border); color: var(--muted); }
+        .step.done .step-label, .step.active .step-label { color: var(--ink); }
+        .step.idle .step-label { color: var(--muted); }
+        .step-line {
+            flex: 1; height: 1.5px; background: var(--border);
+            margin: 0 10px; min-width: 28px;
+        }
+        .step-line.done { background: var(--green); }
+
+        /* Section card */
+        .section-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 20px;
+        }
+        .section-card-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 1rem; letter-spacing: -.02em;
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-card-title .s-icon {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: var(--paper);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* QR box */
+        .qr-wrap {
+            display: flex; align-items: center; gap: 28px;
+            flex-wrap: wrap;
+        }
+        .qr-frame {
+            background: #fff;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.07);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .qr-frame img {
+            display: block; border-radius: 8px;
+            width: 160px; height: 160px; object-fit: contain;
+        }
+        .qr-corner {
+            position: absolute;
+            width: 16px; height: 16px;
+            border-color: var(--accent);
+            border-style: solid;
+        }
+        .qr-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+        .qr-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+        .qr-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+        .qr-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+        .qr-instructions {}
+        .qr-instructions h4 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: .95rem; margin-bottom: 14px;
+        }
+        .qr-steps {
+            list-style: none;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .qr-steps li {
+            display: flex; align-items: flex-start; gap: 10px;
+            font-size: .83rem; color: var(--muted); line-height: 1.5;
+        }
+        .qr-steps li .num {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--paper);
+            display: flex; align-items: center; justify-content: center;
+            font-size: .65rem; font-weight: 700; color: var(--ink);
+            flex-shrink: 0; margin-top: 1px;
+        }
+
+        /* Upload area */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 36px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .25s, background .25s;
+            position: relative;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--ink);
+            background: rgba(13,13,15,.02);
+        }
+        .upload-zone.has-file {
+            border-color: var(--green);
+            background: var(--green-bg);
+        }
+        .upload-zone input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+        }
+        .upload-icon { font-size: 2.2rem; margin-bottom: 10px; }
+        .upload-zone h4 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: .95rem; margin-bottom: 6px;
+        }
+        .upload-zone p {
+            font-size: .78rem; color: var(--muted);
+            line-height: 1.5;
+        }
+        .upload-zone .file-name {
+            display: none;
+            margin-top: 10px;
+            font-size: .82rem; font-weight: 500; color: var(--green);
+        }
+        .upload-zone.has-file .file-name { display: block; }
+        .upload-zone.has-file .upload-default { display: none; }
+
+        /* Submit btn */
+        .btn-pay {
+            width: 100%; padding: 16px;
+            background: var(--accent); color: #fff;
+            border: none; border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 1rem;
+            cursor: pointer;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-pay:hover {
+            background: #e03d20;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(255,77,46,.35);
+        }
+        .btn-pay:active { transform: translateY(0); }
+        .btn-pay:disabled {
+            background: var(--border); color: var(--muted);
+            cursor: not-allowed; transform: none; box-shadow: none;
+        }
+
+        /* Message */
+        #payment-msg {
+            margin-top: 14px; font-size: .82rem;
+            font-weight: 500; text-align: center;
+            min-height: 22px; border-radius: 10px;
+            padding: 0;
+            transition: all .3s;
+        }
+        #payment-msg.uploading {
+            color: var(--muted);
+            background: var(--paper); padding: 10px;
+        }
+        #payment-msg.success {
+            color: var(--green);
+            background: var(--green-bg); padding: 12px;
+        }
+        #payment-msg.error {
+            color: var(--accent);
+            background: rgba(255,77,46,.08); padding: 12px;
+        }
+
+        /* ── RIGHT COLUMN — ORDER SUMMARY ── */
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,.07);
+            position: sticky; top: 84px;
+        }
+        .summary-top {
+            background: var(--ink);
+            padding: 28px;
+            position: relative; overflow: hidden;
+        }
+        .summary-top::before {
+            content: '';
+            position: absolute; top: -40px; right: -40px;
+            width: 140px; height: 140px; border-radius: 50%;
+            border: 24px solid rgba(255,77,46,.15);
+        }
+        .summary-label {
+            font-size: .68rem; font-weight: 600;
+            letter-spacing: .12em; text-transform: uppercase;
+            color: rgba(255,255,255,.4); margin-bottom: 12px;
+        }
+        .summary-course-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 1.05rem;
+            color: #fff; line-height: 1.3;
+            position: relative; z-index: 1;
+        }
+        .summary-body { padding: 24px 28px; }
+
+        .price-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+            font-size: .85rem; color: var(--muted);
+        }
+        .price-row:last-of-type { border-bottom: none; }
+        .price-row .val { font-weight: 500; color: var(--ink); }
+        .price-row.total {
+            padding-top: 16px;
+            font-family: 'Syne', sans-serif; font-weight: 700;
+            font-size: 1rem; color: var(--ink);
+        }
+        .price-row.total .val {
+            font-size: 1.3rem; color: var(--accent);
+        }
+
+        .secure-badge {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: 18px; padding: 12px 14px;
+            background: var(--paper); border-radius: 12px;
+            font-size: .75rem; color: var(--muted); line-height: 1.4;
+        }
+        .secure-badge .icon { font-size: 1rem; flex-shrink: 0; }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 48px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        footer p { font-size: .75rem; color: var(--muted); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 820px) {
+            .page-wrap { grid-template-columns: 1fr; padding: 28px 20px 60px; }
+            .summary-card { position: static; order: -1; }
+            header, footer { padding-left: 20px; padding-right: 20px; }
+            .qr-wrap { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="home.html" class="logo">
+            <span class="logo-dot"></span>
+            Skill Academy
+        </a>
+        <nav>
+            <a href="courses.html" class="nav-back">← Courses</a>
+            <a href="home.html">Home</a>
+            <a href="login.html" class="nav-logout" onclick="logout()">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-wrap">
+
+            <!-- LEFT -->
+            <div class="left-col">
+                <div class="breadcrumb">
+                    <a href="home.html">Home</a><span>›</span>
+                    <a href="courses.html">Courses</a><span>›</span>
+                    <span id="breadcrumb-title">Course Details</span><span>›</span>
+                    <span>Payment</span>
+                </div>
+
+                <!-- Progress steps -->
+                <div class="steps">
+                    <div class="step done">
+                        <div class="step-num">✓</div>
+                        <span class="step-label">Select Course</span>
+                    </div>
+                    <div class="step-line done"></div>
+                    <div class="step active">
+                        <div class="step-num">2</div>
+                        <span class="step-label">Payment</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step idle">
+                        <div class="step-num">3</div>
+                        <span class="step-label">Confirmation</span>
+                    </div>
+                </div>
+
+                <!-- QR Section -->
+                <div class="section-card">
+                    <div class="section-card-title">
+                        <span class="s-icon">📲</span>
+                        Scan & Pay via QR
+                    </div>
+                    <div class="qr-wrap">
+                        <div class="qr-frame">
+                            <div class="qr-corner tl"></div>
+                            <div class="qr-corner tr"></div>
+                            <div class="qr-corner bl"></div>
+                            <div class="qr-corner br"></div>
+
+                            <img src="data:image/png;base64,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" alt="UPI QR Code">
+                        </div>
+                        <div class="qr-instructions">
+                            <h4>How to pay</h4>
+                            <ul class="qr-steps">
+                                <li><span class="num">1</span> Open your UPI app (GPay, PhonePe, Paytm)</li>
+                                <li><span class="num">2</span> Scan the QR code shown here</li>
+                                <li><span class="num">3</span> Enter the exact course amount</li>
+                                <li><span class="num">4</span> Complete payment & save the screenshot</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="section-card">
+                    <div class="section-card-title">
+                        <span class="s-icon">🧾</span>
+                        Upload Payment Receipt
+                    </div>
+
+                    <div class="upload-zone" id="upload-zone">
+                        <input type="file" id="receipt-file" accept="image/*,application/pdf"
+                            onchange="handleFileSelect(this)" required>
+                        <div class="upload-default">
+                            <div class="upload-icon">📎</div>
+                            <h4>Drop your receipt here</h4>
+                            <p>PNG, JPG or PDF · Max 5MB<br>
+                            Screenshot of your payment confirmation</p>
+                        </div>
+                        <div class="upload-icon" style="display:none;" id="success-icon">✅</div>
+                        <p class="file-name" id="file-name-display"></p>
+                    </div>
+
+                    <br>
+                    <button class="btn-pay" id="submit-btn" onclick="handleSubmit()" disabled>
+                        <span>🔒</span> Complete Registration
+                    </button>
+                    <p id="payment-msg"></p>
+                </div>
+            </div>
+
+            <!-- RIGHT: Order Summary -->
+            <div class="summary-card">
+                <div class="summary-top">
+                    <p class="summary-label">You're enrolling in</p>
+                    <p class="summary-course-title" id="payment-course-title">Loading…</p>
+                </div>
+                <div class="summary-body">
+                    <div class="price-row">
+                        <span>Course fee</span>
+                        <span class="val">₹<span id="payment-course-fees">—</span></span>
+                    </div>
+                    <div class="price-row">
+                        <span>Platform fee</span>
+                        <span class="val">₹0</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total</span>
+                        <span class="val">₹<span id="payment-total">—</span></span>
+                    </div>
+
+                    <div class="secure-badge">
+                        <span class="icon">🔐</span>
+                        <span>Your payment is secured. Receipt verified within 24 hrs.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="logo">
+            <span class="logo-dot"></span>
+            Skill Academy
+        </div>
+        <p>© 2025 Skill Academy. All rights reserved.</p>
+    </footer>
+
+<script src="script.js"></script>
+<script>
+    async function loadPaymentPage() {
+        const params = new URLSearchParams(window.location.search);
+        const course_id = params.get('course_id');
+
+        if (!course_id) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/courses/${course_id}`);
+            const course = await res.json();
+
+            // 🚨 FIX: Handle FREE courses
+            if (Number(course.fees) === 0) {
+                const user_id = localStorage.getItem('user_id');
+
+                if (!user_id) {
+                    alert('Please login first');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Auto register without payment
+                const registerRes = await fetch('http://localhost:3000/register-course', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user_id,
+                        course_id: course_id,
+                        isFree: true
+                    })
+                });
+
+                const data = await registerRes.json();
+
+                alert(data.message || "Enrolled successfully!");
+
+                // redirect after success
+                window.location.href = "courses.html";
+                return;
+            }
+
+            // ✅ PAID COURSE → continue normal flow
+            document.getElementById('payment-course-title').textContent = course.title;
+            document.getElementById('payment-course-fees').textContent = course.fees;
+            document.getElementById('payment-total').textContent = course.fees;
+
+            document.getElementById('breadcrumb-title').textContent =
+                course.title.length > 22 ? course.title.slice(0, 22) + '…' : course.title;
+
+        } catch (err) {
+            console.error(err);
+            const msg = document.getElementById('payment-msg');
+            msg.textContent = 'Failed to load course';
+            msg.className = 'error';
+        }
+    }
+
+    window.onload = loadPaymentPage;
+
+    function handleFileSelect(input) {
+        const zone = document.getElementById('upload-zone');
+        const nameDisplay = document.getElementById('file-name-display');
+        const successIcon = document.getElementById('success-icon');
+        const btn = document.getElementById('submit-btn');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            zone.classList.add('has-file');
+            nameDisplay.textContent = '✓ ' + file.name;
+            successIcon.style.display = 'block';
+            btn.disabled = false;
+        }
+    }
+
+    // Drag & drop
+    const zone = document.getElementById('upload-zone');
+    zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('drag-over');
+    });
+
+    zone.addEventListener('dragleave', () => {
+        zone.classList.remove('drag-over');
+    });
+
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const fileInput = document.getElementById('receipt-file');
+        fileInput.files = e.dataTransfer.files;
+        handleFileSelect(fileInput);
+    });
+
+    async function handleSubmit() {
+        const user_id = localStorage.getItem('user_id');
+        const params = new URLSearchParams(window.location.search);
+        const course_id = params.get('course_id');
+
+        const msgEl = document.getElementById('payment-msg');
+        const btn = document.getElementById('submit-btn');
+
+        if (!user_id) {
+            alert('Please login first');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const receiptFile = document.getElementById('receipt-file').files[0];
+        if (!receiptFile) {
+            alert('Please select a receipt file');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('user_id', user_id);
+        formData.append('course_id', course_id);
+        formData.append('receipt', receiptFile);
+
+        msgEl.textContent = '⏳ Uploading receipt…';
+        msgEl.className = 'uploading';
+
+        btn.disabled = true;
+        btn.textContent = 'Uploading…';
+
+        try {
+            const res = await fetch('http://localhost:3000/register-course', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.message) {
+                msgEl.textContent = '🎉 ' + data.message;
+                msgEl.className = 'success';
+
+                // update steps UI
+                document.querySelectorAll('.step')[2].className = 'step active';
+                document.querySelectorAll('.step-line')[1].className = 'step-line done';
+
+            } else if (data.error) {
+                msgEl.textContent = '⚠️ ' + data.error;
+                msgEl.className = 'error';
+
+                btn.disabled = false;
+                btn.innerHTML = '<span>🔒</span> Complete Registration';
+            }
+
+        } catch (err) {
+            console.error(err);
+
+            msgEl.textContent = '❌ Upload failed — please try again.';
+            msgEl.className = 'error';
+
+            btn.disabled = false;
+            btn.innerHTML = '<span>🔒</span> Complete Registration';
+        }
+    }
+</script>
+</body>
+</html>

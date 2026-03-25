@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses — Skill Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --ink: #0d0d0f; --paper: #f5f3ee; --accent: #ff4d2e; --accent2: #ffb800;
+            --muted: #8a8680; --card: #ffffff; --border: #e2dfd8; --green: #22c55e;
+        }
+        body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+
+        /* HEADER */
+        header { display:flex; justify-content:space-between; align-items:center; padding:0 48px; height:64px; background:rgba(245,243,238,0.88); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+        .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; display:flex; align-items:center; gap:8px; color:var(--ink); text-decoration:none; }
+        .logo-dot { width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite; }
+        @keyframes pulse {0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:.7;}}
+        nav a { margin-left:8px; padding:6px 14px; text-decoration:none; color:var(--muted); border-radius:100px; transition:.2s; font-size:.85rem; font-weight:500; }
+        nav a:hover { background:rgba(13,13,15,.06); color:var(--ink); }
+        .nav-active { color:var(--ink) !important; background:rgba(13,13,15,.06); }
+        .nav-logout { background:var(--ink) !important; color:#fff !important; border-radius:12px; font-family:'Syne',sans-serif; font-weight:600 !important; }
+        .nav-logout:hover { background:var(--accent) !important; }
+
+        /* PAGE */
+        .page-wrap { max-width:1100px; margin:0 auto; padding:48px 48px 80px; animation:riseUp .6s cubic-bezier(.16,1,.3,1) both; }
+        @keyframes riseUp { from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);} }
+        @media(max-width:768px){.page-wrap{padding:28px 20px 60px;}header{padding:0 20px;}}
+
+        /* PAGE HEADER */
+        .page-header { margin-bottom:40px; }
+        .page-tag { display:inline-flex; align-items:center; gap:6px; font-size:.72rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); background:rgba(255,77,46,.1); padding:5px 12px; border-radius:100px; margin-bottom:14px; }
+        .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2.2rem; letter-spacing:-.04em; line-height:1.1; margin-bottom:10px; }
+        .page-sub { font-size:.92rem; color:var(--muted); font-weight:300; }
+
+        /* TABS */
+        .tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:32px; }
+        .tab-btn { padding:10px 18px; background:none; border:none; font-size:.85rem; font-weight:500; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:.2s; font-family:'DM Sans',sans-serif; }
+        .tab-btn:hover { color:var(--ink); }
+        .tab-btn.active { color:var(--ink); border-bottom-color:var(--ink); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+
+        /* COURSE GRID */
+        .courses-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; }
+
+        /* ENROLLED CARD */
+        .enrolled-card { background:var(--card); border:1px solid var(--border); border-radius:20px; overflow:hidden; transition:transform .25s, box-shadow .25s; animation:fadeCard .5s ease both; }
+        .enrolled-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,.09); border-color:transparent; }
+        @keyframes fadeCard { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+        .card-top { background:var(--ink); padding:24px; display:flex; align-items:center; gap:14px; position:relative; overflow:hidden; }
+        .card-top::after { content:''; position:absolute; right:-30px; top:-30px; width:100px;height:100px; border-radius:50%; border:20px solid rgba(255,255,255,.05); }
+        .course-icon { width:48px; height:48px; background:rgba(255,255,255,.08); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; }
+        .card-top h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:.95rem; color:#fff; letter-spacing:-.02em; line-height:1.3; }
+        .enrolled-badge { background:rgba(34,197,94,.15); color:var(--green); padding:3px 10px; border-radius:100px; font-size:.65rem; font-weight:600; margin-top:4px; width:fit-content; }
+        .card-body { padding:20px 24px; }
+        .card-desc { font-size:.82rem; color:var(--muted); font-weight:300; line-height:1.6; margin-bottom:18px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .card-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+        .meta-item { display:flex; align-items:center; gap:5px; font-size:.75rem; color:var(--muted); }
+        .btn-start { width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:12px; font-family:'Syne',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; transition:background .2s, transform .15s; }
+        .btn-start:hover { background:#e03d20; transform:translateY(-1px); }
+
+        /* WISHLIST CARD */
+        .wishlist-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; transition:transform .2s, box-shadow .2s; animation:fadeCard .5s ease both; }
+        .wishlist-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.07); }
+        .wishlist-info { flex:1; }
+        .wishlist-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.9rem; margin-bottom:4px; }
+        .wishlist-price { font-size:.78rem; color:var(--muted); }
+        .wishlist-price.free { color:var(--green); font-weight:600; }
+        .wishlist-actions { display:flex; gap:8px; align-items:center; }
+        .btn-view-sm { padding:8px 16px; background:var(--ink); color:#fff; border:none; border-radius:10px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'Syne',sans-serif; transition:background .2s; white-space:nowrap; }
+        .btn-view-sm:hover { background:var(--accent); }
+        .btn-remove { width:32px; height:32px; background:transparent; border:1.5px solid var(--border); border-radius:8px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+        .btn-remove:hover { border-color:var(--accent); color:var(--accent); }
+
+        /* EMPTY STATE */
+        .empty-state { text-align:center; padding:72px 20px; }
+        .empty-icon { font-size:3rem; margin-bottom:16px; opacity:.5; }
+        .empty-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.2rem; margin-bottom:8px; }
+        .empty-sub { font-size:.88rem; color:var(--muted); margin-bottom:28px; }
+        .btn-browse { display:inline-block; padding:12px 28px; background:var(--ink); color:#fff; border-radius:12px; text-decoration:none; font-family:'Syne',sans-serif; font-weight:600; font-size:.9rem; transition:background .2s; }
+        .btn-browse:hover { background:var(--accent); }
+
+        /* SKELETON */
+        .skeleton { height:180px; border-radius:20px; background:linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; }
+        @keyframes shimmer { 0%{background-position:200% 0;}100%{background-position:-200% 0;} }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="home.html" class="logo"><span class="logo-dot"></span>Skill Academy</a>
+    <nav>
+        <a href="home.html">Home</a>
+        <a href="courses.html">Browse</a>
+        <a href="enrolled.html" class="nav-active">My Courses</a>
+        <a href="login.html" class="nav-logout" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<main class="page-wrap">
+    <div class="page-header">
+        <div class="page-tag">✦ Your learning</div>
+        <h1 class="page-title">My Courses</h1>
+        <p class="page-sub">Continue learning or discover new skills.</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('enrolled', this)">Enrolled <span id="enrolled-count" style="color:var(--muted);font-size:.75rem;margin-left:4px;"></span></button>
+        <button class="tab-btn" onclick="switchTab('wishlist', this)">Saved for Later <span id="wishlist-count" style="color:var(--muted);font-size:.75rem;margin-left:4px;"></span></button>
+    </div>
+
+    <!-- ENROLLED TAB -->
+    <div id="tab-enrolled" class="tab-panel active">
+        <div class="courses-grid" id="enrolled-courses">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
+    </div>
+
+    <!-- WISHLIST TAB -->
+    <div id="tab-wishlist" class="tab-panel">
+        <div id="wishlist-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+</main>
+
+<script src="script.js"></script>
+<script>
+const emojis = { python:'🐍', web:'🌐', design:'🎨', data:'📊', ai:'🤖', react:'⚛️', java:'☕', sql:'🗄️', default:'📚' };
+
+function getCourseEmoji(title) {
+    const t = title.toLowerCase();
+    for (const [key, val] of Object.entries(emojis)) {
+        if (t.includes(key)) return val;
+    }
+    return emojis.default;
+}
+
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    btn.classList.add('active');
+    if (tabId === 'wishlist') loadWishlist();
+}
+
+// ---- ENROLLED COURSES ----
+async function loadEnrolledCourses() {
+    const user_id = localStorage.getItem('user_id');
+    const container = document.getElementById('enrolled-courses');
+
+    // 1. Check login
+    if (!user_id) {
+        container.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1">
+                <div class="empty-icon">🔒</div>
+                <h3 class="empty-title">Not logged in</h3>
+                <p class="empty-sub">Please login to see your enrolled courses.</p>
+                <a href="login.html" class="btn-browse">Go to Login →</a>
+            </div>`;
+        return;
+    }
+
+    // Show loading skeletons
+    container.innerHTML = `
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>`;
+
+    try {
+        const res = await fetch(`http://localhost:3000/enrolled-courses/${user_id}`);
+
+        // Handle non-200 HTTP responses explicitly
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || `Server returned ${res.status}`);
+        }
+
+        const courses = await res.json();
+
+        // Validate it's actually an array
+        if (!Array.isArray(courses)) {
+            throw new Error('Unexpected response format from server');
+        }
+
+        document.getElementById('enrolled-count').innerText = `(${courses.length})`;
+        container.innerHTML = '';
+
+        if (courses.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column:1/-1">
+                    <div class="empty-icon">📭</div>
+                    <h3 class="empty-title">No courses enrolled yet</h3>
+                    <p class="empty-sub">Browse courses and enroll — your learning journey starts here!</p>
+                    <a href="courses.html" class="btn-browse">Browse Courses →</a>
+                </div>`;
+            return;
+        }
+
+        courses.forEach((course, i) => {
+            const div = document.createElement('div');
+            div.className = 'enrolled-card';
+            div.style.animationDelay = `${i * 0.07}s`;
+            div.innerHTML = `
+                <div class="card-top">
+                    <div class="course-icon">${getCourseEmoji(course.title)}</div>
+                    <div>
+                        <h3>${course.title}</h3>
+                        <span class="enrolled-badge">✓ Enrolled</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-desc">${course.description || 'No description available.'}</p>
+                    <div class="card-meta">
+                        <span class="meta-item">🎬 Video lessons</span>
+                        <span class="meta-item">♾️ Lifetime access</span>
+                    </div>
+                    <button class="btn-start" onclick="window.location.href='course-player.html?course_id=${course.id}'">
+                        ▶ Start Learning
+                    </button>
+                </div>`;
+            container.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error('Enrolled courses error:', err);
+        const user_id_display = localStorage.getItem('user_id') || 'not set';
+        container.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1">
+                <div class="empty-icon">📡</div>
+                <h3 class="empty-title">Couldn't load courses</h3>
+                <p class="empty-sub" style="margin-bottom:8px;">${err.message}</p>
+                <p style="font-size:.72rem;color:var(--muted);margin-bottom:20px;">
+                    User ID in session: <code style="background:rgba(0,0,0,.06);padding:2px 6px;border-radius:4px;">${user_id_display}</code>
+                    — Check that your server is running on port 3000 and the
+                    <code style="background:rgba(0,0,0,.06);padding:2px 6px;border-radius:4px;">registrations</code> table has data for this user.
+                </p>
+                <button class="btn-browse" onclick="loadEnrolledCourses()" style="cursor:pointer;border:none;">
+                    🔄 Retry
+                </button>
+            </div>`;
+    }
+}
+
+// ---- WISHLIST ----
+function loadWishlist() {
+    const list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const container = document.getElementById('wishlist-list');
+    document.getElementById('wishlist-count').innerText = `(${list.length})`;
+    container.innerHTML = '';
+
+    if (list.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🔖</div>
+                <h3 class="empty-title">Nothing saved yet</h3>
+                <p class="empty-sub">Tap "Save for Later" on any course to bookmark it here.</p>
+                <a href="courses.html" class="btn-browse">Browse Courses →</a>
+            </div>`;
+        return;
+    }
+
+    list.forEach((item, i) => {
+        const fees = Number(item.fees);
+        const div = document.createElement('div');
+        div.className = 'wishlist-card';
+        div.style.animationDelay = `${i * 0.05}s`;
+        div.innerHTML = `
+            <div style="font-size:1.6rem;">${getCourseEmoji(item.title)}</div>
+            <div class="wishlist-info">
+                <div class="wishlist-title">${item.title}</div>
+                <div class="wishlist-price ${fees === 0 ? 'free' : ''}">${fees === 0 ? 'FREE' : '₹' + fees}</div>
+            </div>
+            <div class="wishlist-actions">
+                <button class="btn-view-sm" onclick="window.location.href='course-details.html?id=${item.id}'">View →</button>
+                <button class="btn-remove" onclick="removeFromWishlist('${item.id}')" title="Remove">✕</button>
+            </div>`;
+        container.appendChild(div);
+    });
+}
+
+function removeFromWishlist(course_id) {
+    let list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    list = list.filter(item => String(item.id) !== String(course_id));
+    localStorage.setItem('wishlist', JSON.stringify(list));
+    loadWishlist();
+}
+
+loadEnrolledCourses();
+// Preload wishlist count
+const wl = JSON.parse(localStorage.getItem('wishlist') || '[]');
+document.getElementById('wishlist-count').innerText = `(${wl.length})`;
+</script>
+
+</body>
+</html>

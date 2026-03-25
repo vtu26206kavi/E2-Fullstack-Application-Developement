@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Player — Skill Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --ink: #0d0d0f; --paper: #f5f3ee; --accent: #ff4d2e; --accent2: #ffb800;
+            --muted: #8a8680; --card: #ffffff; --border: #e2dfd8; --green: #22c55e;
+            --player-bg: #0a0a0c;
+        }
+        body { font-family:'DM Sans',sans-serif; background:var(--player-bg); color:#fff; min-height:100vh; }
+
+        /* HEADER */
+        header { display:flex; justify-content:space-between; align-items:center; padding:0 24px; height:56px; background:rgba(10,10,12,0.97); border-bottom:1px solid rgba(255,255,255,.08); position:sticky; top:0; z-index:200; }
+        .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; display:flex; align-items:center; gap:8px; color:#fff; text-decoration:none; }
+        .logo-dot { width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite; }
+        @keyframes pulse {0%,100%{transform:scale(1);}50%{transform:scale(1.5);opacity:.7;}}
+        .header-course-title { font-size:.82rem; color:rgba(255,255,255,.4); font-weight:300; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .nav-back { display:inline-flex; align-items:center; gap:6px; font-size:.8rem; color:rgba(255,255,255,.5); text-decoration:none; padding:6px 14px; border:1px solid rgba(255,255,255,.1); border-radius:8px; transition:.2s; }
+        .nav-back:hover { color:#fff; border-color:rgba(255,255,255,.3); }
+
+        /* LAYOUT */
+        .player-layout { display:grid; grid-template-columns:1fr 320px; height:calc(100vh - 56px); overflow:hidden; }
+        @media(max-width:900px){ .player-layout{grid-template-columns:1fr;height:auto;overflow:auto;} .lesson-sidebar{max-height:380px;} }
+
+        /* MAIN */
+        .player-main { display:flex; flex-direction:column; overflow:hidden; }
+
+        /* VIDEO */
+        .video-wrapper { position:relative; background:#000; flex-shrink:0; }
+        .video-wrapper iframe, .video-wrapper video { width:100%; display:block; aspect-ratio:16/9; border:none; }
+        .video-placeholder { aspect-ratio:16/9; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#111; gap:12px; }
+        .play-circle { width:72px;height:72px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem; }
+        .video-placeholder p { font-size:.85rem; color:rgba(255,255,255,.3); }
+
+        /* LESSON INFO */
+        .lesson-info { padding:20px 28px 24px; background:var(--player-bg); border-top:1px solid rgba(255,255,255,.06); flex:1; overflow-y:auto; }
+        .lesson-number { font-size:.7rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+        .lesson-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.3rem; margin-bottom:10px; }
+        .lesson-desc { font-size:.85rem; color:rgba(255,255,255,.4); line-height:1.7; }
+        .lesson-nav { display:flex; gap:10px; margin-top:20px; }
+        .nav-btn { padding:9px 20px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:10px; color:rgba(255,255,255,.7); font-size:.82rem; cursor:pointer; transition:.2s; font-family:'DM Sans',sans-serif; }
+        .nav-btn:hover:not(:disabled) { background:rgba(255,255,255,.12); color:#fff; }
+        .nav-btn:disabled { opacity:.25; cursor:not-allowed; }
+        .nav-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+        .nav-btn.primary:hover:not(:disabled) { background:#e03d20; }
+
+        /* SIDEBAR */
+        .lesson-sidebar { background:#111; border-left:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; overflow:hidden; }
+        .sidebar-header { padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.07); flex-shrink:0; }
+        .sidebar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.88rem; margin-bottom:8px; }
+        .progress-row { display:flex; align-items:center; gap:8px; }
+        .progress-bar { flex:1; height:5px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden; }
+        .progress-fill { height:100%; background:var(--green); border-radius:3px; transition:width .5s ease; }
+        .progress-text { font-size:.7rem; color:rgba(255,255,255,.3); white-space:nowrap; }
+
+        /* LESSON LIST */
+        .lesson-list { flex:1; overflow-y:auto; padding:6px 0; }
+        .lesson-list::-webkit-scrollbar { width:3px; }
+        .lesson-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); }
+
+        .lesson-item { display:flex; align-items:center; gap:12px; padding:11px 20px; cursor:pointer; transition:.15s; border-left:3px solid transparent; }
+        .lesson-item:hover { background:rgba(255,255,255,.04); }
+        .lesson-item.active { background:rgba(255,77,46,.08); border-left-color:var(--accent); }
+        .lesson-num { width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.7rem;color:rgba(255,255,255,.35);flex-shrink:0;transition:.2s; }
+        .lesson-item.active .lesson-num { background:var(--accent); color:#fff; }
+        .lesson-item.done .lesson-num { background:var(--green); color:#fff; }
+        .lesson-item-info { flex:1; min-width:0; }
+        .lesson-item-title { font-size:.82rem; font-weight:500; color:rgba(255,255,255,.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lesson-item.active .lesson-item-title { color:#fff; }
+        .lesson-item.done .lesson-item-title { color:rgba(255,255,255,.45); }
+        .lesson-item-sub { font-size:.68rem; color:rgba(255,255,255,.2); margin-top:2px; }
+        .check { font-size:.85rem; flex-shrink:0; }
+
+        /* MARK COMPLETE */
+        .mark-wrap { padding:10px 16px 6px; flex-shrink:0; }
+        .btn-mark { width:100%; padding:10px; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); border-radius:10px; color:var(--green); font-size:.8rem; font-weight:600; cursor:pointer; font-family:'Syne',sans-serif; transition:.2s; }
+        .btn-mark:hover { background:rgba(34,197,94,.18); }
+        .btn-mark.done { opacity:.4; cursor:default; }
+
+        /* COMPLETION BANNER */
+        .completion-banner { margin:12px 16px; padding:16px; background:linear-gradient(135deg, rgba(255,184,0,.1), rgba(255,77,46,.08)); border:1px solid rgba(255,184,0,.25); border-radius:14px; text-align:center; display:none; }
+        .cb-icon { font-size:2rem; margin-bottom:6px; }
+        .cb-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.9rem; color:var(--accent2); margin-bottom:4px; }
+        .cb-sub { font-size:.72rem; color:rgba(255,255,255,.35); line-height:1.5; margin-bottom:12px; }
+        .btn-cert { width:100%; padding:11px; background:var(--accent2); color:var(--ink); border:none; border-radius:10px; font-family:'Syne',sans-serif; font-weight:700; font-size:.85rem; cursor:pointer; transition:.15s; }
+        .btn-cert:hover { background:#e6a600; transform:translateY(-1px); }
+
+        /* CERTIFICATE MODAL */
+        .cert-overlay { position:fixed; inset:0; background:rgba(0,0,0,.88); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; backdrop-filter:blur(8px); }
+        .cert-overlay.open { display:flex; animation:fadeIn .3s ease; }
+        @keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+
+        .cert-modal { background:#fff; border-radius:24px; overflow:hidden; max-width:880px; width:100%; box-shadow:0 40px 100px rgba(0,0,0,.6); animation:slideUp .35s cubic-bezier(.16,1,.3,1); }
+        @keyframes slideUp { from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;} }
+
+        .cert-modal-header { padding:20px 28px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f0ede8; background:#faf9f7; }
+        .cert-modal-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:#0d0d0f; }
+        .cert-modal-sub { font-size:.78rem; color:#8a8680; margin-top:2px; }
+        .btn-close-modal { width:32px;height:32px;border:none;background:rgba(13,13,15,.07);border-radius:8px;cursor:pointer;font-size:1rem;color:#0d0d0f;display:flex;align-items:center;justify-content:center;transition:.2s; }
+        .btn-close-modal:hover { background:rgba(13,13,15,.14); }
+
+        .cert-canvas-wrap { padding:24px 28px; background:#f5f3ee; display:flex; justify-content:center; overflow:auto; }
+        #cert-canvas { max-width:100%; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,.15); display:block; }
+
+        .cert-modal-footer { padding:16px 28px; display:flex; gap:10px; align-items:center; justify-content:flex-end; background:#fff; border-top:1px solid #f0ede8; }
+        .btn-download { padding:11px 28px; background:#0d0d0f; color:#fff; border:none; border-radius:12px; font-family:'Syne',sans-serif; font-weight:600; font-size:.88rem; cursor:pointer; transition:.2s; }
+        .btn-download:hover { background:var(--accent); }
+        .btn-share { padding:11px 20px; background:transparent; color:#0d0d0f; border:1.5px solid #e2dfd8; border-radius:12px; font-size:.88rem; cursor:pointer; transition:.2s; font-family:'DM Sans',sans-serif; }
+        .btn-share:hover { border-color:#0d0d0f; }
+
+        /* EMPTY */
+        .sidebar-empty { padding:40px 20px; text-align:center; }
+        .sidebar-empty .icon { font-size:2rem; opacity:.2; margin-bottom:8px; }
+        .sidebar-empty p { font-size:.78rem; color:rgba(255,255,255,.25); line-height:1.6; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="enrolled.html" class="logo"><span class="logo-dot"></span>Skill Academy</a>
+    <span class="header-course-title" id="header-course-title">Loading…</span>
+    <a href="enrolled.html" class="nav-back">← My Courses</a>
+</header>
+
+<div class="player-layout">
+
+    <!-- LEFT: VIDEO + INFO -->
+    <div class="player-main">
+        <div class="video-wrapper" id="video-container">
+            <div class="video-placeholder">
+                <div class="play-circle">▶</div>
+                <p>Select a lesson to begin</p>
+            </div>
+        </div>
+        <div class="lesson-info">
+            <p class="lesson-number" id="lesson-number">— / —</p>
+            <h2 class="lesson-title" id="active-lesson-title">Select a lesson from the sidebar</h2>
+            <p class="lesson-desc" id="active-lesson-desc">Your progress is saved automatically as you mark lessons complete.</p>
+            <div class="lesson-nav">
+                <button class="nav-btn" id="prev-btn" onclick="goLesson(-1)" disabled>← Previous</button>
+                <button class="nav-btn primary" id="next-btn" onclick="goLesson(1)" disabled>Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: SIDEBAR -->
+    <div class="lesson-sidebar">
+        <div class="sidebar-header">
+            <p class="sidebar-title" id="sidebar-course-title">Course Content</p>
+            <div class="progress-row">
+                <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+                <span class="progress-text" id="progress-text">0 / 0</span>
+            </div>
+        </div>
+
+        <!-- COMPLETION BANNER (shown when all lessons done) -->
+        <div class="completion-banner" id="completion-banner">
+            <div class="cb-icon">🎓</div>
+            <div class="cb-title">Course Complete!</div>
+            <div class="cb-sub">You've finished all lessons.<br>Claim your certificate below.</div>
+            <button class="btn-cert" onclick="openCertificate()">🏆 Get My Certificate</button>
+        </div>
+
+        <!-- MARK COMPLETE BUTTON -->
+        <div class="mark-wrap" id="mark-wrap" style="display:none">
+            <button class="btn-mark" id="btn-mark" onclick="markComplete()">✓ Mark Lesson as Complete</button>
+        </div>
+
+        <!-- LESSON LIST -->
+        <div class="lesson-list" id="lesson-list">
+            <div class="sidebar-empty">
+                <div class="icon">🎬</div>
+                <p>Loading lessons…</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CERTIFICATE MODAL -->
+<div class="cert-overlay" id="cert-overlay" onclick="closeCertOnBackdrop(event)">
+    <div class="cert-modal">
+        <div class="cert-modal-header">
+            <div>
+                <div class="cert-modal-title">🏆 Certificate of Completion</div>
+                <div class="cert-modal-sub">Your achievement has been officially recorded</div>
+            </div>
+            <button class="btn-close-modal" onclick="closeCertificate()">✕</button>
+        </div>
+        <div class="cert-canvas-wrap">
+            <canvas id="cert-canvas" width="800" height="560"></canvas>
+        </div>
+        <div class="cert-modal-footer">
+            <button class="btn-share" onclick="shareCertificate()">🔗 Share</button>
+            <button class="btn-download" onclick="downloadCertificate()">⬇ Download PNG</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ═══════════════ STATE ═══════════════ */
+const params    = new URLSearchParams(window.location.search);
+const course_id = params.get('course_id');
+let lessons     = [];
+let currentIdx  = 0;
+let courseName  = '';
+let userName    = localStorage.getItem('user_name') || 'Student';
+const STORE_KEY = `completed_${course_id}`;
+let completed   = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+
+/* ═══════════════ HELPERS ═══════════════ */
+function save()       { localStorage.setItem(STORE_KEY, JSON.stringify(completed)); }
+function isDone(id)   { return completed.includes(String(id)); }
+function allDone()    { return lessons.length > 0 && completed.length >= lessons.length; }
+
+function updateProgress() {
+    if (!lessons.length) return;
+    const pct = Math.round((completed.length / lessons.length) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').innerText   = `${completed.length} / ${lessons.length}`;
+    if (allDone()) {
+        document.getElementById('completion-banner').style.display = 'block';
+        document.getElementById('mark-wrap').style.display = 'none';
+    }
+}
+
+function refreshList() {
+    document.querySelectorAll('.lesson-item').forEach((el, i) => {
+        const done = isDone(lessons[i].id);
+        el.className = 'lesson-item' + (i === currentIdx ? ' active' : '') + (done ? ' done' : '');
+        el.querySelector('.lesson-num').innerText = done ? '✓' : (i + 1);
+        el.querySelector('.check').innerText = done ? '✅' : (i === currentIdx ? '▶' : '');
+    });
+}
+
+/* ═══════════════ RENDER LESSON ═══════════════ */
+function renderLesson(idx) {
+    currentIdx = idx;
+    const lesson = lessons[idx];
+    if (!lesson) return;
+
+    document.getElementById('lesson-number').innerText      = `LESSON ${idx + 1} OF ${lessons.length}`;
+    document.getElementById('active-lesson-title').innerText = lesson.title;
+    document.getElementById('active-lesson-desc').innerText  = lesson.description || 'Watch this lesson and mark it complete when done.';
+
+    // ── Video ──
+    const vc  = document.getElementById('video-container');
+    const url = (lesson.video_url || '').trim();
+    if (url) {
+        const yt    = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+        const vim   = url.match(/vimeo\.com\/(\d+)/);
+        if (yt)       vc.innerHTML = `<iframe src="https://www.youtube.com/embed/${yt[1]}?rel=0&modestbranding=1" frameborder="0" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe>`;
+        else if (vim) vc.innerHTML = `<iframe src="https://player.vimeo.com/video/${vim[1]}?color=ff4d2e&title=0" frameborder="0" allowfullscreen></iframe>`;
+        else if (/\.(mp4|webm|ogg)$/i.test(url)) vc.innerHTML = `<video src="${url}" controls preload="metadata" style="width:100%;aspect-ratio:16/9;background:#000;"></video>`;
+        else          vc.innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen></iframe>`;
+    } else {
+        vc.innerHTML = `<div class="video-placeholder"><div class="play-circle">🎬</div><p>No video URL for this lesson yet.</p></div>`;
+    }
+
+    // ── Nav ──
+    document.getElementById('prev-btn').disabled         = idx === 0;
+    document.getElementById('next-btn').disabled         = idx === lessons.length - 1;
+    document.getElementById('next-btn').innerText        = idx === lessons.length - 1 ? '🏁 Finish' : 'Next →';
+
+    // ── Mark button ──
+    if (!allDone()) {
+        document.getElementById('mark-wrap').style.display = 'block';
+        const btn = document.getElementById('btn-mark');
+        if (isDone(lesson.id)) { btn.innerText = '✅ Lesson Completed'; btn.className = 'btn-mark done'; }
+        else                   { btn.innerText = '✓ Mark Lesson as Complete'; btn.className = 'btn-mark'; }
+    }
+
+    refreshList();
+}
+
+function goLesson(dir) {
+    const n = currentIdx + dir;
+    if (n >= 0 && n < lessons.length) renderLesson(n);
+}
+
+function markComplete() {
+    const lesson = lessons[currentIdx];
+    if (!lesson || isDone(lesson.id)) return;
+    completed.push(String(lesson.id));
+    save();
+    updateProgress();
+    renderLesson(currentIdx);
+    if (currentIdx < lessons.length - 1) setTimeout(() => goLesson(1), 500);
+}
+
+/* ═══════════════ LOAD ═══════════════ */
+async function loadLessons() {
+    if (!course_id) {
+        document.getElementById('lesson-list').innerHTML = `<div class="sidebar-empty"><div class="icon">❌</div><p>No course ID in URL.</p></div>`;
+        return;
+    }
+    try {
+        const [courseRes, lessonsRes] = await Promise.all([
+            fetch(`http://localhost:3000/courses/${course_id}`),
+            fetch(`http://localhost:3000/lessons/${course_id}`)
+        ]);
+        const course = await courseRes.json();
+        lessons      = await lessonsRes.json();
+
+        courseName = course.title || 'Course';
+        document.getElementById('sidebar-course-title').innerText = courseName;
+        document.getElementById('header-course-title').innerText  = courseName;
+
+        const container = document.getElementById('lesson-list');
+
+        if (!lessons.length) {
+            container.innerHTML = `<div class="sidebar-empty"><div class="icon">🎬</div><p>No lessons added yet.<br>Check back soon!</p></div>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        lessons.forEach((lesson, i) => {
+            const div = document.createElement('div');
+            div.className = 'lesson-item' + (isDone(lesson.id) ? ' done' : '');
+            div.innerHTML = `
+                <div class="lesson-num">${isDone(lesson.id) ? '✓' : (i+1)}</div>
+                <div class="lesson-item-info">
+                    <div class="lesson-item-title">${lesson.title}</div>
+                    <div class="lesson-item-sub">${lesson.duration || 'Video lesson'}</div>
+                </div>
+                <span class="check">${isDone(lesson.id) ? '✅' : ''}</span>`;
+            div.onclick = () => renderLesson(i);
+            container.appendChild(div);
+        });
+
+        updateProgress();
+        const first = lessons.findIndex(l => !isDone(l.id));
+        renderLesson(first >= 0 ? first : 0);
+        if (allDone()) {
+            document.getElementById('completion-banner').style.display = 'block';
+            document.getElementById('mark-wrap').style.display = 'none';
+        }
+    } catch (err) {
+        console.error(err);
+        document.getElementById('lesson-list').innerHTML = `<div class="sidebar-empty"><div class="icon">📡</div><p>Couldn't load lessons.<br>Is the server running?</p></div>`;
+    }
+}
+
+/* ═══════════════ CERTIFICATE ═══════════════ */
+function openCertificate() {
+    drawCertificate();
+    document.getElementById('cert-overlay').classList.add('open');
+}
+function closeCertificate()       { document.getElementById('cert-overlay').classList.remove('open'); }
+function closeCertOnBackdrop(e)   { if (e.target.id === 'cert-overlay') closeCertificate(); }
+function getDate() {
+    return new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+}
+
+function drawCertificate() {
+    const canvas = document.getElementById('cert-canvas');
+    const ctx    = canvas.getContext('2d');
+    const W = 800, H = 560;
+    canvas.width = W; canvas.height = H;
+
+    /* ── Background ── */
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#fdfcf8'); bg.addColorStop(.5, '#fffaf2'); bg.addColorStop(1, '#fdfcf8');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    /* ── Subtle paper texture dots ── */
+    ctx.fillStyle = 'rgba(200,164,90,0.04)';
+    for (let x = 0; x < W; x += 20) for (let y = 0; y < H; y += 20) { ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill(); }
+
+    /* ── Outer gold border ── */
+    ctx.strokeStyle = '#c8a45a'; ctx.lineWidth = 3;
+    rRect(ctx, 14, 14, W-28, H-28, 18, false, true);
+    /* ── Inner thin border ── */
+    ctx.strokeStyle = 'rgba(200,164,90,.3)'; ctx.lineWidth = 1;
+    rRect(ctx, 26, 26, W-52, H-52, 12, false, true);
+
+    /* ── Corner ornaments ── */
+    [[42,42,0],[W-42,42,90],[W-42,H-42,180],[42,H-42,270]].forEach(([x,y,a]) => corner(ctx,x,y,a));
+
+    /* ── Top red bar ── */
+    const tb = ctx.createLinearGradient(80,0,W-80,0);
+    tb.addColorStop(0,'rgba(255,77,46,0)'); tb.addColorStop(.15,'#ff4d2e'); tb.addColorStop(.85,'#ff4d2e'); tb.addColorStop(1,'rgba(255,77,46,0)');
+    ctx.fillStyle = tb; ctx.fillRect(80, 65, W-160, 3);
+
+    /* ── Logo ── */
+    ctx.fillStyle = '#ff4d2e'; ctx.beginPath(); ctx.arc(58, 82, 6, 0, Math.PI*2); ctx.fill();
+    ctx.font = 'bold 15px "Syne",sans-serif'; ctx.fillStyle = '#0d0d0f'; ctx.textAlign = 'left'; ctx.fillText('Skill Academy', 72, 87);
+
+    /* ── "Certificate of Completion" ── */
+    ctx.textAlign = 'center';
+    ctx.font = '600 11px "DM Sans",sans-serif'; ctx.fillStyle = '#ff4d2e';
+    ctx.fillText('C E R T I F I C A T E   O F   C O M P L E T I O N', W/2, 112);
+    divider(ctx, W/2, 125, 130);
+
+    /* ── "This is to certify that" ── */
+    ctx.font = '300 14px "DM Sans",sans-serif'; ctx.fillStyle = '#8a8680';
+    ctx.fillText('This is to certify that', W/2, 162);
+
+    /* ── NAME ── */
+    ctx.font = 'bold 40px "Syne",sans-serif'; ctx.fillStyle = '#0d0d0f';
+    ctx.fillText(userName, W/2, 216);
+
+    /* Name underline */
+    const nw = ctx.measureText(userName).width, nx = W/2 - nw/2;
+    const nl = ctx.createLinearGradient(nx,0,nx+nw,0);
+    nl.addColorStop(0,'rgba(255,184,0,0)'); nl.addColorStop(.2,'#ffb800'); nl.addColorStop(.8,'#ffb800'); nl.addColorStop(1,'rgba(255,184,0,0)');
+    ctx.strokeStyle = nl; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(nx, 224); ctx.lineTo(nx+nw, 224); ctx.stroke();
+
+    /* ── "has successfully completed" ── */
+    ctx.font = '300 14px "DM Sans",sans-serif'; ctx.fillStyle = '#8a8680';
+    ctx.fillText('has successfully completed the course', W/2, 258);
+
+    /* ── COURSE NAME ── */
+    ctx.font = 'bold 22px "Syne",sans-serif'; ctx.fillStyle = '#ff4d2e';
+    wrapText(ctx, courseName, W/2, 296, W-180, 30);
+
+    divider(ctx, W/2, 338, 90);
+
+    /* ── Bottom info row ── */
+    // Date (left)
+    ctx.textAlign = 'left';
+    ctx.font = '500 10px "DM Sans",sans-serif'; ctx.fillStyle = '#b0aa9f';
+    ctx.fillText('DATE OF COMPLETION', 82, 370);
+    ctx.font = 'bold 14px "Syne",sans-serif'; ctx.fillStyle = '#0d0d0f';
+    ctx.fillText(getDate(), 82, 392);
+
+    // Seal (center)
+    seal(ctx, W/2, 378);
+
+    // Cert ID (right)
+    ctx.textAlign = 'right';
+    ctx.font = '500 10px "DM Sans",sans-serif'; ctx.fillStyle = '#b0aa9f';
+    ctx.fillText('CERTIFICATE ID', W-82, 370);
+    ctx.font = 'bold 13px "Syne",sans-serif'; ctx.fillStyle = '#0d0d0f';
+    const cid = 'SA-' + btoa(userName + courseName).replace(/[^A-Z0-9]/gi,'').slice(0,8).toUpperCase();
+    ctx.fillText(cid, W-82, 392);
+
+    /* ── Bottom bar ── */
+    const bb = ctx.createLinearGradient(80,0,W-80,0);
+    bb.addColorStop(0,'rgba(255,77,46,0)'); bb.addColorStop(.15,'#ff4d2e'); bb.addColorStop(.85,'#ff4d2e'); bb.addColorStop(1,'rgba(255,77,46,0)');
+    ctx.fillStyle = bb; ctx.fillRect(80, H-68, W-160, 2);
+
+    /* ── Footer ── */
+    ctx.textAlign = 'center';
+    ctx.font = '300 10.5px "DM Sans",sans-serif'; ctx.fillStyle = 'rgba(138,134,128,.55)';
+    ctx.fillText('Issued by Skill Academy  ·  Verified Digital Certificate  ·  skillacademy.com', W/2, H-42);
+}
+
+/* Canvas helpers */
+function rRect(ctx, x, y, w, h, r, fill, stroke) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+    if (fill) ctx.fill(); if (stroke) ctx.stroke();
+}
+
+function corner(ctx, cx, cy, deg) {
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(deg * Math.PI / 180);
+    ctx.strokeStyle = '#c8a45a'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(20,0); ctx.moveTo(0,0); ctx.lineTo(0,20); ctx.stroke();
+    ctx.fillStyle = '#c8a45a'; ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function divider(ctx, cx, y, hw) {
+    ctx.save();
+    let lg = ctx.createLinearGradient(cx-hw,0,cx-8,0);
+    lg.addColorStop(0,'rgba(200,164,90,0)'); lg.addColorStop(1,'rgba(200,164,90,.5)');
+    ctx.strokeStyle = lg; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx-hw,y); ctx.lineTo(cx-8,y); ctx.stroke();
+    let rg = ctx.createLinearGradient(cx+8,0,cx+hw,0);
+    rg.addColorStop(0,'rgba(200,164,90,.5)'); rg.addColorStop(1,'rgba(200,164,90,0)');
+    ctx.strokeStyle = rg;
+    ctx.beginPath(); ctx.moveTo(cx+8,y); ctx.lineTo(cx+hw,y); ctx.stroke();
+    ctx.fillStyle = '#c8a45a'; ctx.save(); ctx.translate(cx,y); ctx.rotate(Math.PI/4); ctx.fillRect(-4,-4,8,8); ctx.restore();
+    ctx.restore();
+}
+
+function seal(ctx, cx, cy) {
+    const r = 32;
+    // Glow
+    const glow = ctx.createRadialGradient(cx,cy,r*.3,cx,cy,r*1.5);
+    glow.addColorStop(0,'rgba(255,184,0,.14)'); glow.addColorStop(1,'rgba(255,184,0,0)');
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(cx,cy,r*1.5,0,Math.PI*2); ctx.fill();
+    // Rays
+    ctx.save(); ctx.translate(cx,cy);
+    for (let i=0;i<16;i++) { ctx.rotate(Math.PI*2/16); ctx.fillStyle='rgba(200,164,90,.15)'; ctx.fillRect(r*.7,-1,r*.65,2); }
+    ctx.restore();
+    // Rings
+    ctx.strokeStyle='#c8a45a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='rgba(200,164,90,.35)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,r-7,0,Math.PI*2); ctx.stroke();
+    // Fill
+    const sg = ctx.createRadialGradient(cx-4,cy-4,2,cx,cy,r-9);
+    sg.addColorStop(0,'#fff8e8'); sg.addColorStop(1,'#fef0cc');
+    ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(cx,cy,r-9,0,Math.PI*2); ctx.fill();
+    // Trophy
+    ctx.font='22px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🏆',cx,cy); ctx.textBaseline='alphabetic';
+}
+
+function wrapText(ctx, text, x, y, maxW, lh) {
+    const words = text.split(' ');
+    let line = '', cy = y;
+    words.forEach((w, i) => {
+        const t = line + w + ' ';
+        if (ctx.measureText(t).width > maxW && i > 0) { ctx.fillText(line.trim(), x, cy); line = w+' '; cy += lh; }
+        else line = t;
+    });
+    ctx.fillText(line.trim(), x, cy);
+}
+
+/* Download */
+function downloadCertificate() {
+    const canvas = document.getElementById('cert-canvas');
+    const a = document.createElement('a');
+    a.download = `Certificate_${(userName+'_'+courseName).replace(/[^a-z0-9]/gi,'_')}.png`;
+    a.href = canvas.toDataURL('image/png', 1.0);
+    a.click();
+}
+
+/* Share */
+async function shareCertificate() {
+    const canvas = document.getElementById('cert-canvas');
+    canvas.toBlob(async blob => {
+        const file = new File([blob], 'certificate.png', { type:'image/png' });
+        if (navigator.share && navigator.canShare({ files:[file] })) {
+            try { await navigator.share({ title:'My Certificate – '+courseName, text:`I just completed "${courseName}" on Skill Academy! 🎓`, files:[file] }); }
+            catch(e) {}
+        } else {
+            navigator.clipboard.writeText(`I just completed "${courseName}" on Skill Academy! 🎓`).then(() => alert('Copied share text to clipboard!')).catch(()=>{});
+        }
+    }, 'image/png');
+}
+
+function logout() { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); window.location.href='login.html'; }
+
+loadLessons();
+</script>
+</body>
+</html>

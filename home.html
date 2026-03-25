@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home — Skill Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #0d0d0f;
+            --paper: #f5f3ee;
+            --accent: #ff4d2e;
+            --accent2: #ffb800;
+            --muted: #8a8680;
+            --card: #ffffff;
+            --border: #e2dfd8;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--paper);
+            min-height: 100vh;
+            color: var(--ink);
+        }
+
+        /* ── NAVBAR ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(245,243,238,0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 48px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .logo-dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { transform: scale(1); opacity:1; }
+            50%      { transform: scale(1.4); opacity:.7; }
+        }
+
+        nav { display: flex; align-items: center; gap: 8px; }
+
+        nav a {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 100px;
+            transition: color .2s, background .2s;
+        }
+        nav a:hover { color: var(--ink); background: rgba(13,13,15,.06); }
+
+        .nav-logout {
+            background: var(--ink) !important;
+            color: #fff !important;
+            font-family: 'Syne', sans-serif;
+            font-weight: 600 !important;
+        }
+        .nav-logout:hover {
+            background: var(--accent) !important;
+            color: #fff !important;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 80px 48px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: riseUp .7s cubic-bezier(.16,1,.3,1) both;
+        }
+        @keyframes riseUp {
+            from { opacity:0; transform: translateY(30px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+
+        .hero-left { max-width: 600px; }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: rgba(255,77,46,.1);
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 24px;
+        }
+        .hero-tag-dot {
+            width: 5px; height: 5px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .hero h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.08;
+            letter-spacing: -.04em;
+            margin-bottom: 18px;
+        }
+        .hero h2 .name-highlight {
+            position: relative;
+            display: inline-block;
+        }
+        .hero h2 .name-highlight::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 2px;
+            width: 100%; height: 4px;
+            background: var(--accent2);
+            border-radius: 2px;
+            opacity: .7;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: var(--muted);
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 36px;
+        }
+
+        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        .btn-primary {
+            padding: 13px 28px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 600;
+            font-size: .9rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255,77,46,.3);
+        }
+
+        .btn-secondary {
+            padding: 13px 28px;
+            background: transparent;
+            color: var(--ink);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 600;
+            font-size: .9rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: border-color .2s, background .2s;
+            display: inline-block;
+        }
+        .btn-secondary:hover {
+            border-color: var(--ink);
+            background: rgba(13,13,15,.04);
+        }
+
+        /* Hero stats */
+        .hero-right {
+            flex-shrink: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 280px;
+        }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.05);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.08);
+        }
+        .stat-card:first-child {
+            grid-column: span 2;
+            background: var(--ink);
+            color: #fff;
+        }
+        .stat-icon { font-size: 1.4rem; margin-bottom: 10px; }
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: -.04em;
+        }
+        .stat-card:first-child .stat-num { color: var(--accent2); }
+        .stat-label {
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .stat-card:first-child .stat-label { color: rgba(255,255,255,.45); }
+
+        /* ── SECTION HEADER ── */
+        .section-header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 48px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        .section-header h3 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -.03em;
+        }
+        .section-header a {
+            font-size: .82rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color .2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .section-header a:hover { color: var(--accent); }
+
+        /* ── COURSES GRID ── */
+        .courses-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 48px 80px;
+        }
+
+        .courses-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #ece9e2 25%, #f5f3ee 50%, #ece9e2 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 20px;
+            height: 240px;
+        }
+        @keyframes shimmer {
+            from { background-position: 200% 0; }
+            to   { background-position: -200% 0; }
+        }
+
+        /* Course card */
+        .course-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+            transition: transform .25s, box-shadow .25s, border-color .25s;
+            animation: fadeCard .5s ease both;
+            cursor: pointer;
+        }
+        @keyframes fadeCard {
+            from { opacity:0; transform: translateY(16px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,.09);
+            border-color: transparent;
+        }
+
+        .course-emoji {
+            font-size: 1.8rem;
+            width: 48px; height: 48px;
+            background: var(--paper);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+
+        .course-card h4 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: -.02em;
+            line-height: 1.3;
+        }
+
+        .course-card p {
+            font-size: .83rem;
+            color: var(--muted);
+            font-weight: 300;
+            line-height: 1.55;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .course-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .course-price {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--ink);
+        }
+
+        .btn-view {
+            padding: 8px 18px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: .78rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .2s, transform .15s;
+            display: inline-block;
+        }
+        .btn-view:hover {
+            background: var(--accent);
+            transform: scale(1.04);
+        }
+
+        /* Error state */
+        .error-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .error-state span { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+        .error-state p { font-size: .9rem; }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        footer .logo { font-size: 1rem; }
+        footer p {
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            header { padding: 0 20px; }
+            .hero { flex-direction: column; padding: 48px 20px 40px; }
+            .hero-right { width: 100%; grid-template-columns: 1fr 1fr 1fr; }
+            .hero-right .stat-card:first-child { grid-column: span 3; }
+            .section-header, .courses-section { padding-left: 20px; padding-right: 20px; }
+            footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <a href="home.html" class="logo">
+            <span class="logo-dot"></span>
+            Skill Academy
+        </a>
+       <nav>
+    <a href="courses.html">All Courses</a>
+    <a href="enrolled.html">My Courses</a> <!-- ✅ NEW BUTTON -->
+    <a href="login.html" class="nav-logout" onclick="logout()">Logout</a>
+</nav>
+    </header>
+
+    <main>
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-left">
+                <div class="hero-tag">
+                    <span class="hero-tag-dot"></span>
+                    Your learning dashboard
+                </div>
+                <h2>Welcome back, <span class="name-highlight" id="user-name">Student</span>!</h2>
+                <p>Pick up where you left off or discover something new. Hundreds of expert-led courses are waiting for you.</p>
+               <div class="hero-actions">
+    <a href="courses.html" class="btn-primary">Browse All Courses →</a>
+    <a href="enrolled.html" class="btn-secondary">My Learning →</a> <!-- ✅ NEW -->
+</div>
+            </div>
+            <div class="hero-right">
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-num">12,000+</div>
+                    <div class="stat-label">Active Learners</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-num">400+</div>
+                    <div class="stat-label">Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-num">98%</div>
+                    <div class="stat-label">Satisfaction</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURED COURSES -->
+        <div class="section-header" id="featured">
+            <h3>Featured Courses</h3>
+            <a href="courses.html">View all courses →</a>
+        </div>
+
+        <section class="courses-section">
+            <div id="courses-list-home" class="courses-container">
+                <!-- Skeletons while loading -->
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="logo">
+            <span class="logo-dot"></span>
+            Skill Academy
+        </div>
+        <p>© 2025 Skill Academy. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Emojis to randomly assign to course cards
+        const emojis = ['💻','🎨','📊','🔬','📱','🧠','🎯','⚡','🌐','🛠️','📈','🎬'];
+
+        document.getElementById('user-name').innerText =
+            localStorage.getItem('user_name') || 'Student';
+
+        async function loadHomeCourses() {
+            const container = document.getElementById('courses-list-home');
+            try {
+                const res = await fetch('http://localhost:3000/courses');
+                const courses = await res.json();
+
+                container.innerHTML = '';
+
+                courses.slice(0, 4).forEach((course, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'course-card';
+                    div.style.animationDelay = `${i * 0.08}s`;
+                    div.innerHTML = `
+                        <div class="course-emoji">${emojis[i % emojis.length]}</div>
+                        <h4>${course.title}</h4>
+                        <p>${course.description}</p>
+                        <div class="course-footer">
+                            <span class="course-price">₹${course.fees}</span>
+                            <a href="course-details.html?id=${course.id}" class="btn-view">View Details</a>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div class="error-state">
+                        <span>📡</span>
+                        <p>Couldn't load courses. Make sure the server is running.</p>
+                    </div>
+                `;
+            }
+        }
+
+        loadHomeCourses();
+    </script>
+</body>
+</html>
