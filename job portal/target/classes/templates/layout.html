@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/chatbot.js}" defer></script>
+</head>
+<body>
+    <nav class="navbar" th:fragment="navbar">
+        <a th:href="@{/}" class="navbar-brand">JobPortal</a>
+        <div class="nav-links">
+            <a th:href="@{/}">Home</a>
+            
+            <span sec:authorize="isAuthenticated()">
+                <a th:href="@{/dashboard}" sec:authorize="hasRole('STUDENT')">Dashboard</a>
+                <a th:href="@{/jobs/employer}" sec:authorize="hasRole('EMPLOYER')">Dashboard</a>
+                <a th:href="@{/applications/student}" sec:authorize="hasRole('STUDENT')">My Applications</a>
+                <a th:href="@{/jobs/post}" sec:authorize="hasRole('EMPLOYER')">Post a Job</a>
+                <a th:href="@{/profile}">Profile</a>
+                
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-secondary" style="margin-left: 1rem;">Logout</button>
+                </form>
+            </span>
+            
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn-secondary">Login</a>
+                <a th:href="@{/register}" class="btn-primary">Register</a>
+            </span>
+        </div>
+    </nav>
+</body>
+</html>

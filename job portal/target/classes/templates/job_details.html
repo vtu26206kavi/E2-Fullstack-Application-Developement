@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <div class="container" style="max-width: 800px; margin-top: 2rem;">
+        <a th:href="@{/dashboard}" style="color: var(--primary-color); text-decoration: none; margin-bottom: 1rem; display: inline-block;">&larr; Back to jobs</a>
+        
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 style="color: var(--text-main); margin-bottom: 0.5rem;" th:text="${job.title}">Job Title</h2>
+                    <div style="color: var(--text-muted);">
+                        <span th:text="${job.employer.fullName}">Company Name</span> &bull; 
+                        <span id="job-location" th:text="${job.location}">Location</span>
+                    </div>
+                </div>
+                <div sec:authorize="hasRole('STUDENT')">
+                    <form th:action="@{/jobs/{id}/apply(id=${job.id})}" method="post">
+                        <button type="submit" class="btn-primary">Apply Now</button>
+                    </form>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <span class="badge">Salary: <span th:text="${job.salary}"></span></span>
+                <span class="badge">Category: <span th:text="${job.category}"></span></span>
+                <span class="badge">Posted: <span th:text="${job.datePosted}"></span></span>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 0.5rem;">Skills Required</h3>
+                <p style="color: var(--text-muted);" th:text="${job.skillsRequired}">Skills</p>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 0.5rem;">Job Description</h3>
+                <p style="color: var(--text-muted); line-height: 1.6; white-space: pre-wrap;" th:text="${job.description}">Description</p>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 0.5rem;">Job Location Map</h3>
+                <div id="map" style="height: 300px; border-radius: 8px; z-index: 1;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var locationText = document.getElementById('job-location').innerText;
+            
+            // Initialize map with a default view (e.g., center of US or generic)
+            var map = L.map('map').setView([0, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            if (locationText && locationText.trim() !== '') {
+                // Fetch coordinates using Nominatim OpenStreetMap API
+                fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(locationText))
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            var lat = data[0].lat;
+                            var lon = data[0].lon;
+                            map.setView([lat, lon], 13);
+                            L.marker([lat, lon]).addTo(map)
+                                .bindPopup('<b>Job Location</b><br>' + locationText)
+                                .openPopup();
+                        }
+                    })
+                    .catch(err => console.error('Error fetching location:', err));
+            }
+        });
+    </script>
+</body>
+</html>

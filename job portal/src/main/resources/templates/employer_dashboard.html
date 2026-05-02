@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Employer Dashboard - My Posted Jobs</h2>
+            <a th:href="@{/jobs/post}" class="btn-primary">Post New Job</a>
+        </div>
+        
+        <div th:if="${param.posted}" class="alert alert-success">Job successfully posted!</div>
+        <div th:if="${param.deleted}" class="alert alert-success">Job successfully deleted!</div>
+
+        <div th:if="${jobs.empty}" style="text-align: center; color: var(--text-muted); margin-top: 3rem;">
+            <h3>You haven't posted any jobs yet.</h3>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date Posted</th>
+                    <th>Applications</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="job : ${jobs}">
+                    <td th:text="${job.title}">Title</td>
+                    <td th:text="${job.datePosted}">Date</td>
+                    <td>
+                        <span class="badge" th:text="${#lists.size(job.applications)} + ' applicants'">0 applicants</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/applications/employer/{id}(id=${job.id})}" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">View Applicants</a>
+                        <a th:href="@{/jobs/delete/{id}(id=${job.id})}" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; border-color: #ef4444; color: #f87171;" onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

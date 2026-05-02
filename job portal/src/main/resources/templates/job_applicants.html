@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <div class="container">
+        <a th:href="@{/jobs/employer}" style="color: var(--primary-color); text-decoration: none; margin-bottom: 1rem; display: inline-block;">&larr; Back to Dashboard</a>
+        <h2 style="margin-bottom: 2rem;">Applicants for: <span th:text="${job.title}">Job Title</span></h2>
+
+        <div th:if="${param.updated}" class="alert alert-success">Application status updated.</div>
+
+        <div th:if="${applications.empty}" style="text-align: center; color: var(--text-muted); margin-top: 3rem;">
+            <h3>No applications yet.</h3>
+        </div>
+
+        <div class="glass-card" th:each="app : ${applications}" style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 th:text="${app.applicant.fullName}">Applicant Name</h3>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">
+                        Applied on: <span th:text="${app.applicationDate}"></span> &bull; 
+                        Email: <a th:href="'mailto:' + ${app.applicant.email}" style="color: var(--primary-color);" th:text="${app.applicant.email}">Email</a>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge" th:text="'Status: ' + ${app.status}">Status</span>
+                    <span th:if="${app.applicant.resumeFileName != null}" class="badge">Resume Uploaded</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1rem; display: flex; gap: 1rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                <form th:action="@{/applications/updateStatus}" method="post">
+                    <input type="hidden" name="appId" th:value="${app.id}">
+                    <input type="hidden" name="jobId" th:value="${job.id}">
+                    <input type="hidden" name="status" value="SHORTLISTED">
+                    <button type="submit" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; border-color: #10b981; color: #34d399;">Shortlist</button>
+                </form>
+                <form th:action="@{/applications/updateStatus}" method="post">
+                    <input type="hidden" name="appId" th:value="${app.id}">
+                    <input type="hidden" name="jobId" th:value="${job.id}">
+                    <input type="hidden" name="status" value="REJECTED">
+                    <button type="submit" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; border-color: #ef4444; color: #f87171;">Reject</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
