@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <div class="container">
+        <h2 style="margin-bottom: 2rem;">My Applications</h2>
+
+        <div th:if="${applications.empty}" style="text-align: center; color: var(--text-muted); margin-top: 3rem;">
+            <h3>You haven't applied to any jobs yet.</h3>
+            <a th:href="@{/dashboard}" class="btn-primary" style="display: inline-block; margin-top: 1rem;">Browse Jobs</a>
+        </div>
+
+        <table th:unless="${applications.empty}">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="app : ${applications}">
+                    <td><a th:href="@{/jobs/{id}(id=${app.job.id})}" style="color: var(--primary-color); text-decoration: none;" th:text="${app.job.title}">Job Title</a></td>
+                    <td th:text="${app.job.employer.fullName}">Company</td>
+                    <td th:text="${app.applicationDate}">Date</td>
+                    <td>
+                        <span class="badge" th:style="${app.status == 'SHORTLISTED' ? 'background: rgba(16, 185, 129, 0.2); color: #34d399;' : (app.status == 'REJECTED' ? 'background: rgba(239, 68, 68, 0.2); color: #f87171;' : '')}" th:text="${app.status}">Status</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

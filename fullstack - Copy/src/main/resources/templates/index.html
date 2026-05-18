@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <div class="container hero">
+        <h1>Find Your Dream Job Today</h1>
+        <p>Connect with top employers and discover opportunities that match your skills. Join thousands of successful professionals on our platform.</p>
+        <div>
+            <a th:href="@{/register}" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Get Started</a>
+            <a th:href="@{/dashboard}" class="btn-secondary" style="font-size: 1.2rem; padding: 1rem 2rem; margin-left: 1rem;">Browse Jobs</a>
+        </div>
+    </div>
+
+</body>
+</html>

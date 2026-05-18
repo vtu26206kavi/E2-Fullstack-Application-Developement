@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <div class="container">
+        <h2 style="margin-bottom: 1.5rem;">Job Listings</h2>
+        
+        <div th:if="${param.applied}" class="alert alert-success">
+            Successfully applied for the job!
+        </div>
+
+        <form th:action="@{/dashboard}" method="get" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+            <input type="text" name="search" class="form-control" placeholder="Search by job title or category..." th:value="${param.search}">
+            <button type="submit" class="btn-primary">Search</button>
+        </form>
+
+        <div th:if="${jobs.empty}" style="text-align: center; color: var(--text-muted); margin-top: 3rem;">
+            <h3>No jobs found matching your criteria.</h3>
+        </div>
+
+        <div class="job-grid">
+            <div th:each="job : ${jobs}" class="job-card">
+                <h3 class="job-title" th:text="${job.title}">Job Title</h3>
+                <div class="job-meta">
+                    <span class="badge" th:text="${job.category}">Category</span>
+                    <span th:text="${job.location}">Location</span>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem;" 
+                   th:text="${#strings.abbreviate(job.description, 100)}">Description</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; color: var(--text-main);" th:text="${job.salary}">Salary</span>
+                    <a th:href="@{/jobs/{id}(id=${job.id})}" class="btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.9rem;">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
